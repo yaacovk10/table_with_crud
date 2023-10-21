@@ -1,6 +1,7 @@
 import json
-from flask import  Blueprint, request
-from models import db, Customer
+from flask import  Blueprint, request, render_template
+from project.models import Customer
+from project import db
 
 customers = Blueprint('customers', __name__, url_prefix= '/customers' )
 
@@ -9,9 +10,10 @@ def get_customers():
     res=[]
     for cust in Customer.query.all():
         res.append({"addr":cust.addr,"city":cust.city,"id":cust.id,"name":cust.name})
-    return  (json.dumps(res))
+    # return  (json.dumps(res))
+    return render_template('index.html')
 
-@customers.route('/customers',  methods = ['POST'])
+@customers.route('/add',  methods = ['POST'])
 def add_customer():
     data = request.json
     print(data)

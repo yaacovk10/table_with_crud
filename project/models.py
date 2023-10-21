@@ -1,8 +1,5 @@
-from flask_sqlalchemy import SQLAlchemy
+from project import app, db
 
-from app import app
-
-db = SQLAlchemy(app)
 
 
 class Customer(db.Model):
