@@ -5,22 +5,28 @@ from project import db
 
 customers = Blueprint('customers', __name__, url_prefix= '/customers' )
 
-@customers.route('/get',  methods = ['GET'])
+@customers.route('/')
+def home():
+    return render_template('index.html')
+
+@customers.route('/',  methods = ['GET'])
 def get_customers():
     res=[]
     for cust in Customer.query.all():
         res.append({"addr":cust.addr,"city":cust.city,"id":cust.id,"name":cust.name})
-    # return  (json.dumps(res))
-    return render_template('index.html')
+    return  (json.dumps(res))
+    # return render_template('index.html')
 
-@customers.route('/add',  methods = ['POST'])
+@customers.route('/',  methods = ['POST'])
 def add_customer():
     data = request.json
     print(data)
     newCustomer = Customer(data["name"], data["city"], data["addr"])
     db.session.add(newCustomer)
     db.session.commit()
-    return (data)
+    # return (data)
+    return render_template('index.html')
+
    
     
 @customers.route('/customers/<id>',  methods = ['PUT'])

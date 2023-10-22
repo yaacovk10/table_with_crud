@@ -11,7 +11,7 @@
     hello world
     <div id="'display"></div>
     <script>
-        const MY_SERVER = 'http://127.0.0.1:5000/customers/get'
+        const MY_SERVER = 'http://127.0.0.1:5000/customers/add'
         const get_data = async () =>{
             res = await axios.get(MY_SERVER)
             display.innerHTML = res.data.map (cust=> `
