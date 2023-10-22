@@ -9,27 +9,25 @@ customers = Blueprint('customers', __name__, url_prefix= '/customers' )
 def home():
     return render_template('index.html')
 
-@customers.route('/',  methods = ['GET'])
+@customers.route('/get',  methods = ['GET'])
 def get_customers():
     res=[]
     for cust in Customer.query.all():
         res.append({"addr":cust.addr,"city":cust.city,"id":cust.id,"name":cust.name})
     return  (json.dumps(res))
-    # return render_template('index.html')
 
-@customers.route('/',  methods = ['POST'])
+@customers.route('/add',  methods = ['POST'])
 def add_customer():
     data = request.json
     print(data)
     newCustomer = Customer(data["name"], data["city"], data["addr"])
     db.session.add(newCustomer)
     db.session.commit()
-    # return (data)
-    return render_template('index.html')
+    return (data)
 
    
     
-@customers.route('/customers/<id>',  methods = ['PUT'])
+@customers.route('/<id>',  methods = ['PUT'])
 def upd_cust(id):
     data = request.json
     upd_row = Customer.query.filter_by(id=id).first()
@@ -41,7 +39,7 @@ def upd_cust(id):
         return {'upd': 'true'}
     return {'upd': 'false'}
 
-@customers.route('/customers/<id>', methods = ['DELETE'])
+@customers.route('/<id>', methods = ['DELETE'])
 def delete(id):
     del_row = Customer.query.filter_by(id=id).first()
     if del_row:

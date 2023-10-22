@@ -4,7 +4,7 @@ from project import app, db
 
 class Customer(db.Model):
     __tablename__ = 'customer'
-    id = db.Column('student_id', db.Integer, primary_key = True)
+    id = db.Column('customer_id', db.Integer, primary_key = True)
     name = db.Column(db.String(100))
     city = db.Column(db.String(50))
     addr = db.Column(db.String(200))

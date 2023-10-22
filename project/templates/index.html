@@ -9,19 +9,27 @@
 </head>
 <body>
     hello world
-    <div id="'display"></div>
+    <div id="display"></div>
+    <button class="btn btn-primary" onclick="add_cust()">Add</button>
+    Name <input type="text" id= 'cust_name'>
+    City <input type="text" id= 'cust_city'>
+    Address <input type="text" id = 'cust_address'>
     <script>
-        const MY_SERVER = 'http://127.0.0.1:5000/customers/add'
+        // console.log(3);
+        const MY_SERVER = 'http://127.0.0.1:5000/customers/'
         const get_data = async () =>{
-            res = await axios.get(MY_SERVER)
-            display.innerHTML = res.data.map (cust=> `
+            res = await axios.get(`${MY_SERVER}/get`)
+            display.innerHTML = res.data.map(cust=> `
             <div>
             ${cust.name}, 
             ${cust.city},
-            <button class='btn btn-danger'>Delete</button> 
-            <button class='btn btn-info'>Edit</button>
+            <button class='btn btn-danger' onClick='del_cust(${cust.id})'>Delete</button> 
+            <button class='btn btn-info' onClick='upd_cust(${cust.id})'>Edit</button>
             </div>`)
         }
+        const del_cust = (id) => axios.delete(`${MY_SERVER}/${id}`)
+        const add_cust = () => axios.post(`${MY_SERVER}/add`, {"name": cust_name.value, "city": cust_city.value, "addr": cust_address.value})
+        const upd_cust = (id) => axios.put(`${MY_SERVER}/${id}`, {"name": cust_name.value, "city": cust_city.value, "addr": cust_address.value})
         get_data()
     </script>
 </body>
