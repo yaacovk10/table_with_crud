@@ -16,6 +16,7 @@ def get_customers():
         res.append({"addr":cust.addr,"city":cust.city,"id":cust.id,"name":cust.name})
     return  (json.dumps(res))
 
+
 @customers.route('/add',  methods = ['POST'])
 def add_customer():
     data = request.json
@@ -38,6 +39,8 @@ def upd_cust(id):
         db.session.commit()
         return {'upd': 'true'}
     return {'upd': 'false'}
+
+
 
 @customers.route('/<id>', methods = ['DELETE'])
 def delete(id):
