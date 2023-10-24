@@ -41,25 +41,9 @@
         const MY_SERVER = 'http://127.0.0.1:5000/books';
         const bookList = document.getElementById('book-list');
 
-        // const get_data = async () => {
-        //     try {
-        //         const res = await axios.get(`${MY_SERVER}/get`);
-        //         bookList.innerHTML = res.data.map(book => `
-        //             <tr>
-        //                 <td>${book.name}</td>
-        //                 <td>${book.author}</td>
-        //                 <td>${book.year_published}</td>
-        //                 <td>${book.book_type}</td>
-        //                 <td>
-        //                     <button class='btn btn-danger' onClick='del_book(${book.id})'>Delete</button> 
-        //                     <button class='btn btn-info' onClick='upd_book(${book.id})'>Edit</button>
-        //                 </td>
-        //             </tr>`
-        //         ).join('');
-        //     } catch (error) {
-        //         console.error(error);
-        //     }
-        // }
+       
+        
+
         const get_data = async () => {
             try {
                 const res = await axios.get(`${MY_SERVER}/get`);
@@ -151,11 +135,11 @@
             const bookTypeElement = row.cells[3];
             const editButton = row.cells[4].querySelector('.btn-info');
 
-            // Enable editing for specific cells
-            nameElement.contentEditable = true;
-            authorElement.contentEditable = true;
-            yearPublishedElement.contentEditable = true;
-            bookTypeElement.contentEditable = true;
+            // Convert the row's cells into input fields
+            nameElement.innerHTML = `<input type="text" value="${nameElement.innerText}">`;
+            authorElement.innerHTML = `<input type="text" value="${authorElement.innerText}">`;
+            yearPublishedElement.innerHTML = `<input type="text" value="${yearPublishedElement.innerText}">`;
+            bookTypeElement.innerHTML = `<input type="text" value="${bookTypeElement.innerText}">`;
 
             // Change the Edit button to Update
             editButton.innerText = 'Update';
@@ -164,21 +148,21 @@
 
         // Function to update a book
         async function update_book(id, row) {
-            const nameElement = row.cells[0];
-            const authorElement = row.cells[1];
-            const yearPublishedElement = row.cells[2];
-            const bookTypeElement = row.cells[3];
+            const nameElement = row.cells[0].querySelector('input');
+            const authorElement = row.cells[1].querySelector('input');
+            const yearPublishedElement = row.cells[2].querySelector('input');
+            const bookTypeElement = row.cells[3].querySelector('input');
 
-            const nameValue = nameElement.innerText;
-            const authorValue = authorElement.innerText;
-            const yearPublishedValue = yearPublishedElement.innerText;
-            const bookTypeValue = bookTypeElement.innerText;
+            const nameValue = nameElement.value;
+            const authorValue = authorElement.value;
+            const yearPublishedValue = yearPublishedElement.value;
+            const bookTypeValue = bookTypeElement.value;
 
             if (!nameValue || !authorValue || !yearPublishedValue || !bookTypeValue) {
                 alert('Please fill in all fields');
                 return;
             }
-            
+
             const bookData = {
                 name: nameValue,
                 author: authorValue,
@@ -188,11 +172,11 @@
 
             axios.put(`${MY_SERVER}/update/${id}`, bookData)
                 .then(() => {
-                    // Disable editing for specific cells
-                    nameElement.contentEditable = false;
-                    authorElement.contentEditable = false;
-                    yearPublishedElement.contentEditable = false;
-                    bookTypeElement.contentEditable = false;
+                    // Convert input fields back to plain text
+                    nameElement.outerHTML = nameValue;
+                    authorElement.outerHTML = authorValue;
+                    yearPublishedElement.outerHTML = yearPublishedValue;
+                    bookTypeElement.outerHTML = bookTypeValue;
 
                     // Change the Update button back to Edit
                     const editButton = row.cells[4].querySelector('.btn-info');
@@ -205,6 +189,7 @@
                     console.error(err);
                 });
         }
+
 
 
         get_data();
