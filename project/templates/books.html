@@ -24,6 +24,7 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th>Book ID</th>
                     <th>Name</th>
                     <th>Author</th>
                     <th>Year Published</th>
@@ -49,6 +50,7 @@
                 const res = await axios.get(`${MY_SERVER}/get`);
                 bookList.innerHTML = res.data.map(book => `
                     <tr id="book-${book.id}"> <!-- Add a unique identifier (e.g., book ID) to the row -->
+                        <td>${book.id}</td> <!-- Display the Book ID -->
                         <td>${book.name}</td>
                         <td>${book.author}</td>
                         <td>${book.year_published}</td>

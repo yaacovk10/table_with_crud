@@ -48,7 +48,6 @@ class Loan(db.Model):
     __tablename__ = 'loan'
     id = db.Column('loan_id', db.Integer, primary_key=True)
     cust_id = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=False)
-    # cust_id = db.Column(db.Integer, db.ForeignKey('customer.customer_id'), nullable=False)
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
     loan_date = db.Column(db.Date, nullable=False)
     return_date = db.Column(db.Date, nullable=True)
