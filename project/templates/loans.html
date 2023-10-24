@@ -11,31 +11,35 @@
 </head>
 
 <body>
-    <div class="container mt-4">
-        <h1>Loans Management</h1>
-        <div class="mb-3">
-            <input type="text" id="cust_id" placeholder="Customer ID">
-            <input type="text" id="book_id" placeholder="Book ID">
-            <input type="text" id="loan_date" placeholder="Loan Date (YYYY-MM-DD)">
-            <button class="btn btn-primary" onclick="add_loan()">Add Loan</button>
+    
+        <div class="container mt-4">
+            <h1>Loans Management</h1>
+            <div class="mb-3">
+                <input type="text" id="cust_id" placeholder="Customer ID">
+                <input type="text" id="first_name" placeholder="First Name">
+                <input type="text" id="last_name" placeholder="Last Name">
+                <input type="text" id="book_id" placeholder="Book ID">
+                <input type="text" id="book_name" placeholder="Book Name">
+                <input type="text" id="loan_date" placeholder="Loan Date (YYYY-MM-DD)">
+                <button class="btn btn-primary" onclick="add_loan()">Add Loan</button>
+            </div>
+    
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Loan ID</th>
+                        <th>Customer Name</th>
+                        <th>Book Name</th>
+                        <th>Loan Date</th>
+                        <th>Return Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="loan-list">
+                    <!-- Loan data will be displayed here -->
+                </tbody>
+            </table>
         </div>
-
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Loan ID</th>
-                    <th>Customer Name</th>
-                    <th>Book Name</th>
-                    <th>Loan Date</th>
-                    <th>Return Date</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="loan-list">
-                <!-- Loan data will be displayed here -->
-            </tbody>
-        </table>
-    </div>
 
     <script>
         const MY_SERVER = 'http://127.0.0.1:5000/loans';
@@ -61,51 +65,82 @@
             }
         }
 
+
         const clearFields = () => {
             const inputFields = ["cust_id", "book_id", "loan_date"];
             inputFields.forEach(field => document.getElementById(field).value = '');
         }
 
-        const add_loan = () => {
-            const custIdElement = document.getElementById('cust_id');
-            const bookIdElement = document.getElementById('book_id');
-            const loanDateElement = document.getElementById('loan_date');
+        
 
-            const custIdValue = custIdElement.value;
-            const bookIdValue = bookIdElement.value;
-            const loanDateValue = loanDateElement.value;
+        const add_loan = async () => {
+        const custIdElement = document.getElementById('cust_id');
+        const bookIdElement = document.getElementById('book_id');
 
-            if (!custIdValue || !bookIdValue || !loanDateValue) {
-                alert('Please fill in all fields');
-                return;
-            }
-            const loanData = {
-                cust_id: custIdValue,
-                book_id: bookIdValue,
-                loan_date: loanDateValue,
-            };
-            axios.post(`${MY_SERVER}/add`, loanData)
-                .then(() => {
-                    clearFields();
-                    get_data();
-                })
-                .catch(err => {
-                    console.error(err);
-                });
+        const custIdValue = custIdElement.value;
+        const bookIdValue = bookIdElement.value;
+
+        if (!custIdValue || !bookIdValue) {
+            alert('Please fill in all fields');
+            return;
         }
 
-        async function end_loan(loanId) {
-            const returnDate = prompt('Enter the return date (YYYY-MM-DD):');
-            if (returnDate) {
-                try {
-                    await axios.put(`${MY_SERVER}/end/${loanId}`, { "return_date": returnDate });
-                    get_data();
-                } catch (error) {
-                    console.error(error);
-                }
+        try {
+            // Calculate loan date (use the current date)
+            const currentDate = new Date();
+            const loanDateValue = currentDate.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
+            // Make a request to the server to get the book's type
+            const bookRes = await axios.get(`${MY_SERVER}/get-book-type/${bookIdValue}`);
+            const bookType = bookRes.data.book_type;
+
+            // Calculate the return date based on the book's type
+            let returnDate;
+            if (bookType === 1) {
+                returnDate = new Date(currentDate);
+                returnDate.setDate(returnDate.getDate() + 10); // 10 days from now
+            } else if (bookType === 2) {
+                returnDate = new Date(currentDate);
+                returnDate.setDate(returnDate.getDate() + 5); // 5 days from now
+            } else if (bookType === 3) {
+                returnDate = new Date(currentDate);
+                returnDate.setDate(returnDate.getDate() + 2); // 2 days from now
+            }
+
+            // Format return date as YYYY-MM-DD
+            const returnDateValue = returnDate.toISOString().split('T')[0];
+
+            // Add the new loan data to the table
+            const newRow = `
+                <tr>
+                    <td>${custIdValue}</td>
+                    <td>${bookIdValue}</td>
+                    <td>${loanDateValue}</td>
+                    <td>${returnDateValue}</td>
+                </tr>
+            `;
+            loanList.innerHTML += newRow;
+
+            // Clear input fields
+            clearFields();
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+
+    async function end_loan(loanId) {
+        const returnDate = prompt('Enter the return date (YYYY-MM-DD):');
+        if (returnDate) {
+            try {
+                await axios.put(`${MY_SERVER}/end/${loanId}`, { "return_date": returnDate });
+                get_data();
+            } catch (error) {
+                console.error(error);
             }
         }
-
+    }
+        
         get_data();
     </script>
 </body>

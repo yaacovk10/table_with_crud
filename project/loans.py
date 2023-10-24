@@ -68,3 +68,11 @@ def end_loan(loan_id):
     db.session.commit()
 
     return {'message': 'Loan ended successfully'}
+
+
+@loans.route('/get-book-type/<int:book_id>', methods=['GET'])
+def get_book_type(book_id):
+    book = Book.query.get(book_id)
+    if book:
+        return {'book_type': book.book_type}
+    return {'book_type': None}
