@@ -5,32 +5,118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <title>Document</title>
+    <title>Customer Management</title>
 </head>
 <body>
-    hello world
-    <div id="display"></div>
-    <button class="btn btn-primary" onclick="add_cust()">Add</button>
-    Name <input type="text" id= 'cust_name'>
-    City <input type="text" id= 'cust_city'>
-    Address <input type="text" id = 'cust_address'>
+    <div class="container mt-4">
+        <h1>Customer Management</h1>
+        <div class="mb-3">
+            <input type="text" id="cust_id" placeholder="Id">
+            <input type="text" id="first_name" placeholder="First Name">
+            <input type="text" id="last_name" placeholder="Last Name">
+            <input type="text" id="cust_city" placeholder="City">
+            <input type="text" id="cust_age" placeholder="Age">
+            <button class="btn btn-primary" onclick="add_cust()">Add</button>
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>City</th>
+                    <th>Age</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="customer-list">
+                <!-- Customer data will be displayed here -->
+            </tbody>
+        </table>
+    </div>
+
     <script>
-        // console.log(3);
-        const MY_SERVER = 'http://127.0.0.1:5000/customers/'
-        const get_data = async () =>{
-            res = await axios.get(`${MY_SERVER}/get`)
-            display.innerHTML = res.data.map(cust=> `
-            <div>
-            ${cust.name}, 
-            ${cust.city},
-            <button class='btn btn-danger' onClick='del_cust(${cust.id})'>Delete</button> 
-            <button class='btn btn-info' onClick='upd_cust(${cust.id})'>Edit</button>
-            </div>`)
+        const MY_SERVER = 'http://127.0.0.1:5000/customers/';
+        const customerList = document.getElementById('customer-list');
+
+        const get_data = async () => {
+            try {
+                const res = await axios.get(`${MY_SERVER}/get`);
+                customerList.innerHTML = res.data.map(customer => `
+                    <tr>
+                        <td>${customer.id}</td>
+                        <td>${customer.first_name}</td>
+                        <td>${customer.last_name}</td>
+                        <td>${customer.city}</td>
+                        <td>${customer.age}</td>
+                        <td>
+                            <button class='btn btn-danger' onClick='del_cust(${customer.id})'>Delete</button> 
+                            <button class='btn btn-info' onClick='upd_cust(${customer.id})'>Edit</button>
+                        </td>
+                    </tr>`
+                ).join('');
+            } catch (error) {
+                console.error(error);
+            }
         }
-        const del_cust = (id) => axios.delete(`${MY_SERVER}/${id}`)
-        const add_cust = () => axios.post(`${MY_SERVER}/add`, {"name": cust_name.value, "city": cust_city.value, "addr": cust_address.value})
-        const upd_cust = (id) => axios.put(`${MY_SERVER}/${id}`, {"name": cust_name.value, "city": cust_city.value, "addr": cust_address.value})
-        get_data()
+
+        const clearFields = () => {
+            const inputFields = [cust_id, first_name, last_name, cust_city, cust_age];
+            inputFields.forEach(field => field.value = '');
+        }
+
+        const add_cust = () => {
+            const id = cust_id.value;
+            const firstName = first_name.value;
+            const lastName = last_name.value;
+            const city = cust_city.value;
+            const age = cust_age.value;
+
+            axios.post(`${MY_SERVER}/add`, { cust_id: id, first_name: firstName, last_name: lastName, cust_city: city, cust_age: age })
+                .then(() => {
+                    clearFields();
+                    get_data();
+                })
+                .catch(err => {
+                    console.error(err);
+                });
+        }
+
+        // Function to delete a customer
+        async function del_cust(id) {
+            try {
+                await axios.delete(`${MY_SERVER}/${id}`);
+                get_data();
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Function to update a customer
+        async function upd_cust(id) {
+            try {
+                await axios.put(`${MY_SERVER}/${id}`, {
+                    "name": cust_name.value,
+                    "city": cust_city.value,
+                    "addr": cust_address.value
+                });
+                get_data();
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Function to clear input fields
+        function clearInputFields() {
+            cust_id.value = '';
+            first_name.value = '';
+            last_name.value = '';
+            cust_city.value = '';
+            cust_age.value = '';
+        }
+
+        get_data();
     </script>
 </body>
 </html>

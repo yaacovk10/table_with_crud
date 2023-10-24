@@ -1,0 +1,36 @@
+/* Styling for the toast message */
+.toastify-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    max-width: 300px;
+    background: #333;
+    color: #fff;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    transition: opacity 0.5s;
+}
+
+/* Custom styles for the toast message */
+.toastify-custom-style {
+    background: #007bff;
+    color: #fff;
+    border-radius: 4px;
+}
+
+/* Custom style for the toast message close button */
+.toastify-custom-style button {
+    background: #fff;
+    color: #007bff;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    cursor: pointer;
+    text-align: center;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+}

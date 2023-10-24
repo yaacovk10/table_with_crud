@@ -1,6 +1,6 @@
 import json
 from flask import Blueprint, request
-from project.models import Loan, Book, Customer
+from project.models import  Customer,Book, Loan
 from project import db
 
 loans = Blueprint('loans', __name__, url_prefix='/loans')
