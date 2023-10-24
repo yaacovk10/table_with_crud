@@ -1,9 +1,13 @@
 import json
-from flask import Blueprint, request
+from flask import Blueprint, request, render_template
 from project.models import Book
 from project import db
 
 books = Blueprint('books', __name__, url_prefix='/books')
+
+@books.route('/')
+def book_list():
+    return render_template('books.html')
 
 @books.route('/add', methods=['POST'])
 def add_book():
