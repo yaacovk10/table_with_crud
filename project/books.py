@@ -7,7 +7,7 @@ books = Blueprint('books', __name__, url_prefix='/books')
 
 @books.route('/')
 def book_list():
-    return render_template('books.html')
+    return render_template('books.html', active_page='books')
 
 @books.route('/add', methods=['POST'])
 def add_book():

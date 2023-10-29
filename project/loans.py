@@ -9,7 +9,7 @@ loans = Blueprint('loans', __name__, url_prefix='/loans')
 
 @loans.route('/')
 def book_list():
-    return render_template('loans.html')
+    return render_template('loans.html', active_page='loans')
 
 @loans.route('/add', methods=['POST'])
 def add_loan():

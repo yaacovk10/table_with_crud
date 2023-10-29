@@ -25,14 +25,22 @@
         li a:hover {
             background-color: #111;
         }
+        .active {
+  background-color: #04AA6D;
+}
     </style>
 </head>
 <body>
     <ul>
-        <li><a class="active" href="/">Home</a></li>
+        <li><a {% if active_page == 'home' %}class="active"{% endif %} href="/">Home</a></li>
+        <li><a {% if active_page == 'books' %}class="active"{% endif %} href="/books">Books</a></li>
+        <li><a {% if active_page == 'customers' %}class="active"{% endif %} href="/customers">Customers</a></li>
+        <li><a {% if active_page == 'loans' %}class="active"{% endif %} href="/loans">Loans</a></li>
+
+        <!-- <li><a class="active" href="/">Home</a></li>
         <li><a href="/books">Books</a></li>
         <li><a href="/customers">Customers</a></li>
-        <li><a href="/loans">Loans</a></li>
+        <li><a href="/loans">Loans</a></li> -->
     </ul>
 </body>
 </html>
