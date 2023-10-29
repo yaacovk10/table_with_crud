@@ -1,6 +1,6 @@
 import json
 from flask import Blueprint, request, render_template
-from project.models import Book
+from project.models import Book,Loan
 from project import db
 
 books = Blueprint('books', __name__, url_prefix='/books')
@@ -14,13 +14,13 @@ def book_list():
 @books.route('/add', methods=['POST'])
 def add_book():
     data = request.json
-    name = data.get("name")
-    author = data.get("author")
-    year_published = data.get("year_published")
-    book_type = data.get("book_type")
+    book_name = data.get("name")
+    author_name = data.get("author")
+    year_publish = data.get("year_published")
+    book_typ = data.get("book_type")
 
-    if name and author and year_published and book_type:
-        new_book = Book(name='Book Name', author='Author Name', year_published=2023, book_type=1, availability=True)
+    if book_name and author_name and year_publish and book_typ:
+        new_book = Book(name=book_name, author=author_name, year_published=year_publish, book_type=book_typ, availability=True)
         db.session.add(new_book)
         db.session.commit()
         return {'message': 'Book added successfully'}
@@ -64,6 +64,12 @@ def update_book(book_id):
 @books.route('/remove/<book_id>', methods=['DELETE'])
 def remove_book(book_id):
     book = Book.query.get(book_id)
+    # Delete related loans first
+    for loan in Loan.query.filter_by(book_id=book.id).all():
+        if not loan.actual_return_date:
+            return {'message': 'Book is on loan. You can\'t remove it'}, 404
+
+    Loan.query.filter_by(book_id=book.id).delete()
 
     if not book:
         return {'message': 'Book not found'}, 404

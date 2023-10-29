@@ -1,5 +1,6 @@
+import datetime
 import json
-from flask import Blueprint, request, render_template
+from flask import Blueprint, jsonify, request, render_template
 from project.models import  Customer,Book, Loan
 from project import db
 
@@ -11,27 +12,49 @@ loans = Blueprint('loans', __name__, url_prefix='/loans')
 def book_list():
     return render_template('loans.html', active_page='loans')
 
+
 @loans.route('/add', methods=['POST'])
 def add_loan():
-    data = request.json
-    cust_id = data.get("cust_id")
-    book_id = data.get("book_id")
-    loan_date = data.get("loan_date")
+    data = request.get_json()
+    if 'book_id' not in data or 'cust_id' not in data:
+        return jsonify({'message': 'Missing book_id or cust_id'}), 400
 
-    if cust_id and book_id and loan_date:
-        # Check if the customer and book exist in the database
-        customer = Customer.query.get(cust_id)
-        book = Book.query.get(book_id)
+    book_id = data['book_id']
+    cust_id = data['cust_id']
 
-        if customer and book:
-            new_loan = Loan(cust_id=cust_id, book_id=book_id, loan_date=loan_date)
-            db.session.add(new_loan)
-            db.session.commit()
-            return {'message': 'Loan added successfully'}
-        else:
-            return {'message': 'Customer or book not found'}, 400
+    book = Book.query.get(book_id)
+    customer = Customer.query.get(cust_id)
+
+    if not book or not customer:
+        return jsonify({'message': 'Book or Customer not found'}), 404
+
+    if book.availability:
+        loan_date = datetime.datetime.now().date()
+
+        new_loan = Loan(cust_id=cust_id, book_id=book_id, loan_date=loan_date)
+        new_loan.planned_return_date = new_loan.calculate_return_date(book_id)
+
+        # Update book availability
+        book.availability = False
+
+        db.session.add(new_loan)
+        db.session.commit()
+        print(f"return_date   = {new_loan.planned_return_date}")
+        loan_info = {
+            'cust_id': cust_id,
+            'cust_first_name': customer.first_name,
+            'cust_last_name': customer.last_name,
+            'book_id': book_id,
+            'book_name': book.name,
+            'book_author': book.author,
+            'loan_date': loan_date.strftime('%Y-%m-%d'),
+            'return_date': new_loan.planned_return_date.strftime('%Y-%m-%d')
+        }
+
+        return jsonify({'message': 'Loan added successfully', 'loan_info': loan_info}), 200
     else:
-        return {'message': 'Missing data'}, 400
+        return jsonify({'message': 'Book not available for loan'}), 400
+
 
 @loans.route('/get', methods=['GET'])
 def get_loans():
@@ -42,34 +65,40 @@ def get_loans():
         loans_data.append({
             'loan_id': loan.id,
             'cust_id': loan.cust_id,
-            'customer_name': customer.name,
+            'customer_first_name': customer.first_name,
+            'customer_last_name': customer.last_name,
             'book_id': loan.book_id,
             'book_name': book.name,
             'loan_date': loan.loan_date.isoformat(),
-            'return_date': loan.return_date.isoformat() if loan.return_date else None
+            'planned_return_date': loan.planned_return_date.isoformat() if not loan.actual_return_date else None,
+            'actual_return_date': loan.actual_return_date.isoformat() if loan.actual_return_date else None
         })
     return json.dumps(loans_data)
 
 
-# Existing imports and blueprint definition
 
-@loans.route('/end/<loan_id>', methods=['PUT'])
+
+@loans.route('/end/<int:loan_id>', methods=['PUT'])
 def end_loan(loan_id):
-    data = request.json
-
     loan = Loan.query.get(loan_id)
 
     if not loan:
-        return {'message': 'Loan not found'}, 404
+        return jsonify({'message': 'Loan not found'}), 404
 
-    if "return_date" not in data:
-        return {'message': 'Missing return date'}, 400
+    if loan.actual_return_date:
+        return jsonify({'message': 'Loan already ended'}), 400
 
-    return_date = data["return_date"]
-    loan.return_date = return_date
+    book = Book.query.get(loan.book_id)
+
+    if not book:
+        return jsonify({'message': 'Book not found'}), 404
+
+    book.availability = True  # Update book availability to True (book is available)
+    loan.actual_return_date = datetime.datetime.now().date()
+
     db.session.commit()
 
-    return {'message': 'Loan ended successfully'}
+    return jsonify({'message': 'Loan ended successfully', 'loan_id': loan_id}), 200
 
 
 @loans.route('/get-book-type/<int:book_id>', methods=['GET'])

@@ -52,7 +52,8 @@ class Loan(db.Model):
     cust_id = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=False)
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
     loan_date = db.Column(db.Date, nullable=False)
-    return_date = db.Column(db.Date, nullable=True)
+    planned_return_date = db.Column(db.Date, nullable=False)
+    actual_return_date = db.Column(db.Date, nullable=True)
     book = db.relationship('Book')
     customer = db.relationship('Customer')
 
@@ -61,17 +62,17 @@ class Loan(db.Model):
         self.cust_id = cust_id
         self.book_id = book_id
         self.loan_date = loan_date
-        self.return_date = self.calculate_return_date(book_id)
+        self.planned_return_date = self.calculate_return_date(book_id)
 
     def calculate_return_date(self, book_id):
         # Assume 'book_type' is defined as an attribute of the 'Book' model
         book = Book.query.get(book_id)
         if book:
-            if book.book_type == BookType.TYPE1:
+            if book.book_type == BookType.TYPE1.value:
                 return self.loan_date + timedelta(days=10)
-            elif book.book_type == BookType.TYPE2:
+            elif book.book_type == BookType.TYPE2.value:
                 return self.loan_date + timedelta(days=5)
-            elif book.book_type == BookType.TYPE3:
+            elif book.book_type == BookType.TYPE3.value:
                 return self.loan_date + timedelta(days=2)
     
         return None  
