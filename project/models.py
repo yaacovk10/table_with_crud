@@ -33,14 +33,16 @@ class Book(db.Model):
     author = db.Column(db.String(100))
     year_published = db.Column(db.Integer)
     book_type = db.Column(db.Integer, default=BookType.TYPE1)
+    availability = db.Column(db.Boolean, default=True)  
     loans = db.relationship('Loan', back_populates='book')
     
 
-    def __init__(self, name, author, year_published, book_type):
+    def __init__(self, name, author, year_published, book_type, availability=True):
         self.name = name
         self.author = author
         self.year_published = year_published
         self.book_type = book_type
+        self.availability = availability  # Set availability during initialization
 
 
 
@@ -73,7 +75,6 @@ class Loan(db.Model):
                 return self.loan_date + timedelta(days=2)
     
         return None  
-
 
 with app.app_context():
     db.create_all()

@@ -5,6 +5,8 @@ from project import db
 
 books = Blueprint('books', __name__, url_prefix='/books')
 
+
+
 @books.route('/')
 def book_list():
     return render_template('books.html', active_page='books')
@@ -18,7 +20,7 @@ def add_book():
     book_type = data.get("book_type")
 
     if name and author and year_published and book_type:
-        new_book = Book(name=name, author=author, year_published=year_published, book_type=book_type)
+        new_book = Book(name='Book Name', author='Author Name', year_published=2023, book_type=1, availability=True)
         db.session.add(new_book)
         db.session.commit()
         return {'message': 'Book added successfully'}
