@@ -16,14 +16,19 @@
         <h1>Loans Management</h1>
         <div class="mb-3">
             <input type="text" id="cust_id" placeholder="Customer ID">
-            <input type="text" id="first_name" placeholder="First Name">
+            <input type="text" id="first_name" placeholder="First Name" oninput="filterByCustomerName()">
             <input type="text" id="last_name" placeholder="Last Name">
             <input type="text" id="book_id" placeholder="Book ID">
             <input type="text" id="book_name" placeholder="Book Name">
             <!-- <input type="text" id="loan_date" placeholder="Loan Date (YYYY-MM-DD)"> -->
             <button class="btn btn-primary" onclick="add_loan()">Add Loan</button>
         </div>
-
+        <div>
+            <h3>Customer Information</h3>
+            <p>Customer ID: <span id="customer_id"></span></p>
+            <p>First Name: <span id="customer_first_name"></span></p>
+            <p>Last Name: <span id="customer_last_name"></span></p>
+        </div>
         <table class="table">
             <thead>
                 <tr>
@@ -46,7 +51,7 @@
         const MY_SERVER = 'http://127.0.0.1:5000/loans';
         const loanList = document.getElementById('loan-list');
 
-        
+       
         const get_data = async () => {
             try {
                 const res = await axios.get(`${MY_SERVER}/get`);
