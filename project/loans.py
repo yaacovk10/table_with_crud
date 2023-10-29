@@ -5,6 +5,8 @@ from project import db
 
 loans = Blueprint('loans', __name__, url_prefix='/loans')
 
+
+
 @loans.route('/')
 def book_list():
     return render_template('loans.html')
