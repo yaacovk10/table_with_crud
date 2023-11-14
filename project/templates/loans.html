@@ -14,10 +14,11 @@
 <body>
     <div class="container mt-4">
         <h1>Loans Management</h1>
+        <h3>Add Loan</h3>
         <div class="mb-3">
-            <input type="text" id="cust_id" placeholder="Customer ID">
-            <input type="text" id="first_name" placeholder="First Name" oninput="filterByCustomerName()">
-            <input type="text" id="last_name" placeholder="Last Name">
+            <input type="text" id="cust_id" placeholder="Customer ID" onkeyup="display_customers('cust_id')">
+            <input type="text" id="first_name" placeholder="First Name" onkeyup="display_customers('first_name')">
+            <input type="text" id="last_name" placeholder="Last Name" onkeyup="display_customers('last_name')">
             <input type="text" id="book_id" placeholder="Book ID">
             <input type="text" id="book_name" placeholder="Book Name">
             <!-- <input type="text" id="loan_date" placeholder="Loan Date (YYYY-MM-DD)"> -->
@@ -25,10 +26,20 @@
         </div>
         <div>
             <h3>Customer Information</h3>
-            <p>Customer ID: <span id="customer_id"></span></p>
-            <p>First Name: <span id="customer_first_name"></span></p>
-            <p>Last Name: <span id="customer_last_name"></span></p>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Customer Id</th>
+                        <th>Customer First Name</th>
+                        <th>Customer Last Name</th>
+                        <th>Select</th>
+                    </tr>
+                </thead>
+                <tbody id="customer-list">
+                    <!-- Customer data will be displayed here -->
+                </tbody>
         </div>
+        <h3>Select Loan to end</h3>
         <table class="table">
             <thead>
                 <tr>
@@ -50,8 +61,50 @@
     <script>
         const MY_SERVER = 'http://127.0.0.1:5000/loans';
         const loanList = document.getElementById('loan-list');
+        const customersList = document.getElementById('customer-list')
+        const CUSTOMERS = 'http://127.0.0.1:5000/customers'
 
-       
+        const display_customers = async (key = 'last_name') => {
+            
+            const field = document.getElementById(key)
+            if (field.value.trim() === '') {
+                customersList.innerHTML = ''; // Clear the table if Last Name is empty
+                return;
+            }
+            const res = await axios.get(`${CUSTOMERS}/get`);
+            if (key === 'last_name') {
+                console.log(res.data.filter(cust => cust.last_name.includes(last_name.value)))
+                customersList.innerHTML = res.data.filter(cust => cust.last_name.includes(last_name.value)).map(
+                    cust => `<tr id="loan-${cust.id}">
+                        <td>${cust.id}</td>
+                        <td>${cust.first_name}</td>
+                        <td>${cust.last_name}</td>
+                        <td><button>Select</button></td>
+                        </tr>`).join('')
+            }
+
+            else if (key === 'first_name') {
+                console.log(res.data.filter(cust => cust.first_name.includes(first_name.value)))
+                customersList.innerHTML = res.data.filter(cust => cust.first_name.includes(first_name.value)).map(
+                    cust => `<tr id="loan-${cust.id}">
+                        <td>${cust.id}</td>
+                        <td>${cust.first_name}</td>
+                        <td>${cust.last_name}</td>
+                        <td><button>Select</button></td>
+                    </tr>`).join('')
+            }
+            else if (key === 'cust_id') {
+                console.log(res.data.filter(cust => cust.id.toString().includes(cust_id.value)))
+                customersList.innerHTML = res.data.filter(cust => cust.id.toString().includes(cust_id.value)).map(
+                    cust => `<tr id="loan-${cust.id}">
+                        <td>${cust.id}</td>
+                        <td>${cust.first_name}</td>
+                        <td>${cust.last_name}</td>
+                        <td><button>Select</button></td>
+                    </tr>`).join('')
+            }
+        }
+
         const get_data = async () => {
             try {
                 const res = await axios.get(`${MY_SERVER}/get`);
@@ -148,24 +201,25 @@
 
 
         async function end_loan(loanId) {
-    if (confirm('Are you sure you want to end this loan?')) {
-        try {
-            const response = await axios.put(`${MY_SERVER}/end/${loanId}`);
+            if (confirm('Are you sure you want to end this loan?')) {
+                try {
+                    const response = await axios.put(`${MY_SERVER}/end/${loanId}`);
 
-            if (response.status === 200) {
-                alert('Loan ended successfully');
-                get_data(); // Reload the loan data after ending a loan
-            } else {
-                alert('Failed to end the loan');
+                    if (response.status === 200) {
+                        alert('Loan ended successfully');
+                        get_data(); // Reload the loan data after ending a loan
+                    } else {
+                        alert('Failed to end the loan');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert('An error occurred while ending the loan');
+                }
             }
-        } catch (error) {
-            console.error(error);
-            alert('An error occurred while ending the loan');
         }
-    }
-}
 
         get_data();
+        display_customers();
     </script>
 </body>
 
