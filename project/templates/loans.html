@@ -12,18 +12,29 @@
 </head>
 
 <body>
+    <style>
+        .section-divider {
+            border: 4px solid #191717;
+            /* Adjust the color as needed */
+            margin: 20px 0;
+            /* Adjust the margin to control the distance from surrounding elements */
+        }
+    </style>
     <div class="container mt-4">
         <h1>Loans Management</h1>
         <h3>Add Loan</h3>
+        <h6>Insert name or id and select the customer</h6>
         <div class="mb-3">
             <input type="text" id="cust_id" placeholder="Customer ID" onkeyup="display_customers('cust_id')">
             <input type="text" id="first_name" placeholder="First Name" onkeyup="display_customers('first_name')">
             <input type="text" id="last_name" placeholder="Last Name" onkeyup="display_customers('last_name')">
-            <input type="text" id="book_id" placeholder="Book ID">
-            <input type="text" id="book_name" placeholder="Book Name">
+            <input type="text" id="book_id" placeholder="Book ID" onkeyup="display_books('book_id')">
+            <input type="text" id="book_name" placeholder="Book Name" onkeyup="display_books('book_name')">
+            <input type="text" id="author" placeholder="Author" onkeyup="display_books('author')">
             <!-- <input type="text" id="loan_date" placeholder="Loan Date (YYYY-MM-DD)"> -->
             <button class="btn btn-primary" onclick="add_loan()">Add Loan</button>
         </div>
+        <hr class="section-divider">
         <div>
             <h3>Customer Information</h3>
             <table class="table">
@@ -38,71 +49,164 @@
                 <tbody id="customer-list">
                     <!-- Customer data will be displayed here -->
                 </tbody>
+            </table>
         </div>
-        <h3>Select Loan to end</h3>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Loan ID</th>
-                    <th>Customer First Name</th>
-                    <th>Customer Last Name</th>
-                    <th>Book Name</th>
-                    <th>Loan Date</th>
-                    <th>Planned Return Date</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="loan-list">
-                <!-- Loan data will be displayed here -->
-            </tbody>
-        </table>
+        <hr class="section-divider">
+        <div>
+            <h3>Books Information</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Book Id</th>
+                        <th>Book Name</th>
+                        <th>Author</th>
+                        <th>Select</th>
+                    </tr>
+                </thead>
+                <tbody id="book-list">
+                    <!-- Customer data will be displayed here -->
+                </tbody>
+            </table>
+        </div>
+        <hr class="section-divider">
+        <div>
+            <h3>Select Loan to end</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Loan ID</th>
+                        <th>Customer First Name</th>
+                        <th>Customer Last Name</th>
+                        <th>Book Name</th>
+                        <th>Loan Date</th>
+                        <th>Planned Return Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="loan-list">
+                    <!-- Loan data will be displayed here -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
         const MY_SERVER = 'http://127.0.0.1:5000/loans';
         const loanList = document.getElementById('loan-list');
         const customersList = document.getElementById('customer-list')
+        const bookList = document.getElementById('book-list')
         const CUSTOMERS = 'http://127.0.0.1:5000/customers'
+        const BOOKS = 'http://127.0.0.1:5000/books'
 
         const display_customers = async (key = 'last_name') => {
-            
+
             const field = document.getElementById(key)
             if (field.value.trim() === '') {
                 customersList.innerHTML = ''; // Clear the table if Last Name is empty
                 return;
             }
             const res = await axios.get(`${CUSTOMERS}/get`);
-            if (key === 'last_name') {
-                console.log(res.data.filter(cust => cust.last_name.includes(last_name.value)))
-                customersList.innerHTML = res.data.filter(cust => cust.last_name.includes(last_name.value)).map(
-                    cust => `<tr id="loan-${cust.id}">
-                        <td>${cust.id}</td>
-                        <td>${cust.first_name}</td>
-                        <td>${cust.last_name}</td>
-                        <td><button>Select</button></td>
-                        </tr>`).join('')
-            }
+            const inputValue = field.value.toLowerCase(); // Convert to lowercase
 
-            else if (key === 'first_name') {
-                console.log(res.data.filter(cust => cust.first_name.includes(first_name.value)))
-                customersList.innerHTML = res.data.filter(cust => cust.first_name.includes(first_name.value)).map(
-                    cust => `<tr id="loan-${cust.id}">
-                        <td>${cust.id}</td>
-                        <td>${cust.first_name}</td>
-                        <td>${cust.last_name}</td>
-                        <td><button>Select</button></td>
-                    </tr>`).join('')
+            switch (key) {
+                case 'last_name':
+                    console.log(res.data.filter(cust => cust.last_name.startsWith(field.value)));
+                    customersList.innerHTML = res.data.filter(cust => cust.last_name.toLowerCase().startsWith(inputValue)).map(
+                        cust => `<tr id="loan-${cust.id}">
+                    <td>${cust.id}</td>
+                    <td>${cust.first_name}</td>
+                    <td>${cust.last_name}</td>
+                    <td><button onclick="selectCustomer('${cust.id}', '${cust.first_name}', '${cust.last_name}')">Select</button></td
+                </tr>`).join('');
+                    break;
+
+                case 'first_name':
+                    console.log(res.data.filter(cust => cust.first_name.startsWith(field.value)));
+                    customersList.innerHTML = res.data.filter(cust => cust.first_name.toLowerCase().startsWith(inputValue)).map(
+                        cust => `<tr id="loan-${cust.id}">
+                    <td>${cust.id}</td>
+                    <td>${cust.first_name}</td>
+                    <td>${cust.last_name}</td>
+                    <td><button onclick="selectCustomer('${cust.id}', '${cust.first_name}', '${cust.last_name}')">Select</button></td
+                </tr>`).join('');
+                    break;
+
+                case 'cust_id':
+                    console.log(res.data.filter(cust => cust.id.toString().startsWith(field.value)));
+                    customersList.innerHTML = res.data.filter(cust => cust.id.toString().toLowerCase().startsWith(inputValue)).map(
+                        cust => `<tr id="loan-${cust.id}">
+                    <td>${cust.id}</td>
+                    <td>${cust.first_name}</td>
+                    <td>${cust.last_name}</td>
+                    <td><button onclick="selectCustomer('${cust.id}', '${cust.first_name}', '${cust.last_name}')">Select</button></td
+                </tr>`).join('');
+                    break;
+
+                default:
+                    // Handle unknown key
+                    break;
             }
-            else if (key === 'cust_id') {
-                console.log(res.data.filter(cust => cust.id.toString().includes(cust_id.value)))
-                customersList.innerHTML = res.data.filter(cust => cust.id.toString().includes(cust_id.value)).map(
-                    cust => `<tr id="loan-${cust.id}">
-                        <td>${cust.id}</td>
-                        <td>${cust.first_name}</td>
-                        <td>${cust.last_name}</td>
-                        <td><button>Select</button></td>
-                    </tr>`).join('')
+        }
+        function selectCustomer(selectedId, selectedFirstName, selectedLastName) {
+            document.getElementById('cust_id').value = selectedId;
+            document.getElementById('first_name').value = selectedFirstName;
+            document.getElementById('last_name').value = selectedLastName;
+        }
+
+        const display_books = async (key = 'book_id') => {
+
+            const field = document.getElementById(key)
+            if (field.value.trim() === '') {
+                bookList.innerHTML = ''; // Clear the table if Last Name is empty
+                return;
             }
+            const res = await axios.get(`${BOOKS}/get`);
+            const inputValue = field.value.toLowerCase(); // Convert to lowercase
+
+            switch (key) {
+                case 'book_id':
+                    console.log(res.data.filter(book => book.id.toString().startsWith(field.value)));
+                    bookList.innerHTML = res.data.filter(book => book.id.toString().toLowerCase().startsWith(inputValue)).map(
+                        book => `<tr id="loan-${book.id}">
+        <td>${book.id}</td>
+        <td>${book.name}</td>
+        <td>${book.author}</td>
+        <td><button onclick="selectBook('${book.id}', '${book.name}', '${book.author}')">Select</button></td
+    </tr>`).join('');
+                    break;
+
+                case 'book_name':
+                    console.log(res.data.filter(book => book.name.startsWith(field.value)));
+                    bookList.innerHTML = res.data.filter(book => book.name.toLowerCase().startsWith(inputValue)).map(
+                        book => `<tr id="loan-${book.id}">
+        <td>${book.id}</td>
+        <td>${book.name}</td>
+        <td>${book.author}</td>
+        <td><button onclick="selectBook('${book.id}', '${book.name}', '${book.author}')">Select</button></td
+    </tr>`).join('');
+                    break;
+
+                case 'author':
+                    console.log(res.data.filter(book => book.author.toLowerCase().startsWith(field.value)));
+                    bookList.innerHTML = res.data.filter(book => book.author.toLowerCase().startsWith(inputValue)).map(
+                        book => `<tr id="loan-${book.id}">
+        <td>${book.id}</td>
+        <td>${book.name}</td>
+        <td>${book.author}</td>
+        <td><button onclick="selectBook('${book.id}', '${book.name}', '${book.author}')">Select</button></td
+    </tr>`).join('');
+                    break;
+
+                default:
+                    // Handle unknown key
+                    break;
+            }
+        }
+
+        function selectBook(selectedId, selectedBook, selectedAuthor) {
+            document.getElementById('book_id').value = selectedId;
+            document.getElementById('book_name').value = selectedBook;
+            document.getElementById('author').value = selectedAuthor;
         }
 
         const get_data = async () => {
@@ -133,7 +237,7 @@
 
 
         const clearFields = () => {
-            const inputFields = ["cust_id", "book_id", "loan_date"];
+            const inputFields = ["cust_id", "first_name", "last_name", "book_id", "book_name", "author"];
             inputFields.forEach(field => document.getElementById(field).value = '');
         }
 
@@ -145,58 +249,45 @@
 
             const custIdValue = custIdElement.value;
             const bookIdValue = bookIdElement.value;
-
+            // console.log(custIdValue)
+            // console.log(bookIdValue)
             if (!custIdValue || !bookIdValue) {
                 alert('Please fill in all fields');
                 return;
             }
-
+            const loanData = {
+                cust_id: custIdValue,
+                book_id: bookIdValue
+            }
             try {
-                // Calculate loan date (use the current date)
-                const currentDate = new Date();
-                const loanDateValue = currentDate.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+                const response = await axios.post(`${MY_SERVER}/add`, loanData);
+                const message = response.data.message;
 
-                // Make a request to the server to get the book's type
-                const bookRes = await axios.get(`${MY_SERVER}/get-book-type/${bookIdValue}`);
-                const bookType = bookRes.data.book_type;
+                // Display the message to the user (you can use alert, console.log, or update the UI)
+                alert(message);
 
-                // Calculate the return date based on the book's type
-                let returnDate;
-                if (bookType === 1) {
-                    returnDate = new Date(currentDate);
-                    returnDate.setDate(returnDate.getDate() + 10); // 10 days from now
-                } else if (bookType === 2) {
-                    returnDate = new Date(currentDate);
-                    returnDate.setDate(returnDate.getDate() + 5); // 5 days from now
-                } else if (bookType === 3) {
-                    returnDate = new Date(currentDate);
-                    returnDate.setDate(returnDate.getDate() + 2); // 2 days from now
+                // Optionally, you can also access other data from the response
+                if (message === 'Loan added successfully') {
+                    const loanInfo = response.data.loan_info;
+                    console.log('Loan Information:', loanInfo);
+                    // Perform additional actions with loanInfo if needed
                 }
 
-                // Format return date as YYYY-MM-DD
-                const returnDateValue = returnDate.toISOString().split('T')[0];
-
-                // Add the new loan data to the table
-                const newRow = `
-                <tr>
-                    <td>${loan.loan_id}</td>
-                    <td>${loan.customer_name}</td>
-                    <td>${loan.book_name}</td>
-                    <td>${loan.loan_date}</td>
-                    <td>${loan.return_date}</td>
-                    // <td>${custIdValue}</td>
-                    // <td>${bookIdValue}</td>
-                    // <td>${loanDateValue}</td>
-                    // <td>${returnDateValue}</td>
-                </tr>
-            `;
-                loanList.innerHTML += newRow;
-
-                // Clear input fields
+                // Clear fields and update data
                 clearFields();
+                get_data();
             } catch (error) {
-                console.error(error);
+                if (error.response.status === 400) {
+                    // Client error, display the error message from the server
+                    const errorMessage = error.response.data.message;
+                    alert(errorMessage);
+                } else {
+                    // Handle other errors (network issues, server errors, etc.)
+                    console.error('Error adding loan:', error);
+                }
             }
+
+            
         }
 
 

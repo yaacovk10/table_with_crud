@@ -43,8 +43,8 @@
         const MY_SERVER = 'http://127.0.0.1:5000/books';
         const bookList = document.getElementById('book-list');
 
-       
-        
+
+
 
         const get_data = async () => {
             try {
@@ -136,26 +136,39 @@
             const authorElement = row.cells[1];
             const yearPublishedElement = row.cells[2];
             const bookTypeElement = row.cells[3];
-            const editButton = row.cells[4].querySelector('.btn-info');
+            const delButton = row.cells[4].querySelector('.btn-info');
+            const editButton = row.cells[5].querySelector('.btn-info');
 
-            // Convert the row's cells into input fields
-            nameElement.innerHTML = `<input type="text" value="${nameElement.innerText}">`;
-            authorElement.innerHTML = `<input type="text" value="${authorElement.innerText}">`;
-            yearPublishedElement.innerHTML = `<input type="text" value="${yearPublishedElement.innerText}">`;
-            bookTypeElement.innerHTML = `<input type="text" value="${bookTypeElement.innerText}">`;
+            console.log("row:", row);
+            console.log("editButton:", editButton);
 
-            // Change the Edit button to Update
-            editButton.innerText = 'Update';
-            editButton.onclick = () => update_book(id, row); // Set the update function
+            // Add this check to ensure editButton is not null
+            if (editButton) {
+                // Convert the row's cells into input fields
+                nameElement.innerHTML = `<input type="text" value="${nameElement.innerText}">`;
+                authorElement.innerHTML = `<input type="text" value="${authorElement.innerText}">`;
+                yearPublishedElement.innerHTML = `<input type="text" value="${yearPublishedElement.innerText}">`;
+                bookTypeElement.innerHTML = `<input type="text" value="${bookTypeElement.innerText}">`;
+
+                // Change the Edit button to Update
+                editButton.innerText = 'Update';
+                editButton.onclick = () => update_book(id, row); // Set the update function
+            } else {
+                console.error("editButton not found");
+            }
+
+            
         }
 
         // Function to update a book
         async function update_book(id, row) {
-            const nameElement = row.cells[0].querySelector('input');
-            const authorElement = row.cells[1].querySelector('input');
-            const yearPublishedElement = row.cells[2].querySelector('input');
-            const bookTypeElement = row.cells[3].querySelector('input');
+            const idElement = row.cells[0].querySelector('input');
+            const nameElement = row.cells[1].querySelector('input');
+            const authorElement = row.cells[2].querySelector('input');
+            const yearPublishedElement = row.cells[3].querySelector('input');
+            const bookTypeElement = row.cells[4].querySelector('input');
 
+            const idValue = idElement.value
             const nameValue = nameElement.value;
             const authorValue = authorElement.value;
             const yearPublishedValue = yearPublishedElement.value;
@@ -172,7 +185,7 @@
                 year_published: yearPublishedValue,
                 book_type: bookTypeValue,
             };
-
+console.log(bookData)
             axios.put(`${MY_SERVER}/update/${id}`, bookData)
                 .then(() => {
                     // Convert input fields back to plain text
@@ -182,7 +195,8 @@
                     bookTypeElement.outerHTML = bookTypeValue;
 
                     // Change the Update button back to Edit
-                    const editButton = row.cells[4].querySelector('.btn-info');
+                    const editButton = row.cells[6].querySelector('.btn-info');
+                    console.log("in update function")
                     editButton.innerText = 'Edit';
                     editButton.onclick = () => edit_book(id);
 
