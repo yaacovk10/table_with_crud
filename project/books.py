@@ -43,7 +43,6 @@ def get_books():
 @books.route('/update/<book_id>', methods=['PUT'])
 def update_book(book_id):
     data = request.json
-
     book = Book.query.get(book_id)
 
     if not book:

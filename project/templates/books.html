@@ -130,85 +130,137 @@
             }
         }
 
+        // async function edit_book_old(id) {
+        //     const row = document.getElementById(`book-${id}`);
+        //     const nameElement = row.cells[0];
+        //     const authorElement = row.cells[1];
+        //     const yearPublishedElement = row.cells[2];
+        //     const bookTypeElement = row.cells[3];
+        //     const delButton = row.cells[4].querySelector('.btn-info');
+        //     const editButton = row.cells[5].querySelector('.btn-info');
+
+        //     console.log("row:", row);
+        //     console.log("editButton:", editButton);
+
+        //     // Add this check to ensure editButton is not null
+        //     if (editButton) {
+        //         // Convert the row's cells into input fields
+        //         nameElement.innerHTML = `<input type="text" value="${nameElement.innerText}">`;
+        //         authorElement.innerHTML = `<input type="text" value="${authorElement.innerText}">`;
+        //         yearPublishedElement.innerHTML = `<input type="text" value="${yearPublishedElement.innerText}">`;
+        //         bookTypeElement.innerHTML = `<input type="text" value="${bookTypeElement.innerText}">`;
+
+        //         // Change the Edit button to Update
+        //         editButton.innerText = 'Update';
+        //         editButton.onclick = () => update_book(id, row); // Set the update function
+        //     } else {
+        //         console.error("editButton not found");
+        //     }
+
+
+        // }
+
+        // // Function to update a book
+        // async function update_book(id, row) {
+        //     const idElement = row.cells[0].querySelector('input');
+        //     const nameElement = row.cells[1].querySelector('input');
+        //     const authorElement = row.cells[2].querySelector('input');
+        //     const yearPublishedElement = row.cells[3].querySelector('input');
+        //     const bookTypeElement = row.cells[4].querySelector('input');
+
+        //     const idValue = idElement.value
+        //     const nameValue = nameElement.value;
+        //     const authorValue = authorElement.value;
+        //     const yearPublishedValue = yearPublishedElement.value;
+        //     const bookTypeValue = bookTypeElement.value;
+
+        //     if (!nameValue || !authorValue || !yearPublishedValue || !bookTypeValue) {
+        //         alert('Please fill in all fields');
+        //         return;
+        //     }
+
+        //     const bookData = {
+        //         name: nameValue,
+        //         author: authorValue,
+        //         year_published: yearPublishedValue,
+        //         book_type: bookTypeValue,
+        //     };
+        //     console.log(bookData)
+        //     axios.put(`${MY_SERVER}/update/${id}`, bookData)
+        //         .then(() => {
+        //             // Convert input fields back to plain text
+        //             nameElement.outerHTML = nameValue;
+        //             authorElement.outerHTML = authorValue;
+        //             yearPublishedElement.outerHTML = yearPublishedValue;
+        //             bookTypeElement.outerHTML = bookTypeValue;
+
+        //             // Change the Update button back to Edit
+        //             const editButton = row.cells[6].querySelector('.btn-info');
+        //             console.log("in update function")
+        //             editButton.innerText = 'Edit';
+        //             editButton.onclick = () => edit_book(id);
+
+        //             get_data();
+        //         })
+        //         .catch(err => {
+        //             console.error(err);
+        //         });
+        // }
+
         async function edit_book(id) {
             const row = document.getElementById(`book-${id}`);
-            const nameElement = row.cells[0];
-            const authorElement = row.cells[1];
-            const yearPublishedElement = row.cells[2];
-            const bookTypeElement = row.cells[3];
-            const delButton = row.cells[4].querySelector('.btn-info');
-            const editButton = row.cells[5].querySelector('.btn-info');
+            const editButton = row.querySelector('.btn-info');
 
-            console.log("row:", row);
-            console.log("editButton:", editButton);
+            if (editButton.innerText === 'Edit') {
+                row.querySelectorAll('td').forEach(td => {
+                    if (td === row.firstElementChild) return; //Skip the first column with id
+                    if (td === row.lastElementChild) return; // Skip the last column with action buttons
 
-            // Add this check to ensure editButton is not null
-            if (editButton) {
-                // Convert the row's cells into input fields
-                nameElement.innerHTML = `<input type="text" value="${nameElement.innerText}">`;
-                authorElement.innerHTML = `<input type="text" value="${authorElement.innerText}">`;
-                yearPublishedElement.innerHTML = `<input type="text" value="${yearPublishedElement.innerText}">`;
-                bookTypeElement.innerHTML = `<input type="text" value="${bookTypeElement.innerText}">`;
-
-                // Change the Edit button to Update
-                editButton.innerText = 'Update';
-                editButton.onclick = () => update_book(id, row); // Set the update function
-            } else {
-                console.error("editButton not found");
-            }
-
-            
-        }
-
-        // Function to update a book
-        async function update_book(id, row) {
-            const idElement = row.cells[0].querySelector('input');
-            const nameElement = row.cells[1].querySelector('input');
-            const authorElement = row.cells[2].querySelector('input');
-            const yearPublishedElement = row.cells[3].querySelector('input');
-            const bookTypeElement = row.cells[4].querySelector('input');
-
-            const idValue = idElement.value
-            const nameValue = nameElement.value;
-            const authorValue = authorElement.value;
-            const yearPublishedValue = yearPublishedElement.value;
-            const bookTypeValue = bookTypeElement.value;
-
-            if (!nameValue || !authorValue || !yearPublishedValue || !bookTypeValue) {
-                alert('Please fill in all fields');
-                return;
-            }
-
-            const bookData = {
-                name: nameValue,
-                author: authorValue,
-                year_published: yearPublishedValue,
-                book_type: bookTypeValue,
-            };
-console.log(bookData)
-            axios.put(`${MY_SERVER}/update/${id}`, bookData)
-                .then(() => {
-                    // Convert input fields back to plain text
-                    nameElement.outerHTML = nameValue;
-                    authorElement.outerHTML = authorValue;
-                    yearPublishedElement.outerHTML = yearPublishedValue;
-                    bookTypeElement.outerHTML = bookTypeValue;
-
-                    // Change the Update button back to Edit
-                    const editButton = row.cells[6].querySelector('.btn-info');
-                    console.log("in update function")
-                    editButton.innerText = 'Edit';
-                    editButton.onclick = () => edit_book(id);
-
-                    get_data();
-                })
-                .catch(err => {
-                    console.error(err);
+                    const input = document.createElement('input');
+                    input.value = td.textContent;
+                    td.textContent = '';
+                    td.appendChild(input);
                 });
+                editButton.innerText = 'Update';
+            } else {
+                const data = {
+                    name: row.cells[1].querySelector('input').value,
+                    author: row.cells[2].querySelector('input').value,
+                    year_published: row.cells[3].querySelector('input').value,
+                    book_type: row.cells[4].querySelector('input').value,
+                };
+                // Validate 'year_published' input
+                const yearPublishedInput = row.cells[3].querySelector('input');
+                YearValidate = validateYearPublished(yearPublishedInput);
+                if (YearValidate) {
+                    axios
+                        .put(`${MY_SERVER}/update/${id}`, data)
+                        .then(() => {
+                            row.querySelectorAll('td').forEach(td => {
+                                const input = td.querySelector('input');
+                                if (input) {
+                                    td.textContent = input.value;
+                                }
+                            });
+                            editButton.innerText = 'Edit';
+                            get_data();
+                        })
+                        .catch(error => {
+                            console.error(error);
+                        });
+                }
+            }
         }
 
-
-
+        function validateYearPublished(inputElement) {
+            const yearPublishedValue = inputElement.value;
+            if (!/^\d+$/.test(yearPublishedValue)) {
+                alert('Year Published must be a valid number.');
+                inputElement.value = ''; // Clear the input
+                return false
+            }
+            return true
+        }
         get_data();
     </script>
 </body>

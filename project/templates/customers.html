@@ -106,11 +106,16 @@
 
             if (editButton.innerText === 'Edit') {
                 row.querySelectorAll('td').forEach(td => {
+                    if (td === row.firstElementChild) return; //Skip the first column with id
                     if (td === row.lastElementChild) return; // Skip the last column with action buttons
+                    
                     const input = document.createElement('input');
+                    console.log(input)
                     input.value = td.textContent;
+                    console.log(input.value)
                     td.textContent = '';
                     td.appendChild(input);
+                    console.log(td)
                 });
                 editButton.innerText = 'Update';
             } else {
