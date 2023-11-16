@@ -37,6 +37,7 @@ def get_books():
             'author': book.author,
             'year_published': book.year_published,
             'book_type': book.book_type,
+            'availability': book.availability
         })
     return json.dumps(books_data)
 
