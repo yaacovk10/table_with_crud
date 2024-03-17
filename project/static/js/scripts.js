@@ -4,7 +4,8 @@ toast.configure();
 
 
 //const MY_SERVER = 'https://librarymanag.netlify.app/customers'
-const MY_SERVER = 'http://127.0.0.1:5000/customers';
+const MY_SERVER = 'https://library-3xpb.onrender.com'
+//const MY_SERVER = 'http://127.0.0.1:5000/customers';
 const customerList = document.getElementById('customer-list');
 const addCustomerButton = document.getElementById('add-customer');
 
